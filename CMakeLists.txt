@@ -8,6 +8,16 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+if(USE_CLANG)
+  find_program(CLANG clang)
+  if(CLANG)
+    set(CMAKE_C_COMPILER clang)
+    set(CMAKE_CXX_COMPILER clang++)
+  else(USE_CLANG)
+    message("Cannot find Clang. Please install if you want to use Clang.")
+  endif()
+endif()
+
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(EIGEN REQUIRED eigen3)
 

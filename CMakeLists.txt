@@ -22,3 +22,5 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(EIGEN REQUIRED eigen3)
 
 include_directories(${EIGEN_INCLUDE_DIRS})
+
+add_subdirectory(examples)

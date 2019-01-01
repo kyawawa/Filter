@@ -29,7 +29,7 @@ Eigen::Matrix<double, dim_state, dim_state> solveDiscreteAlgebraicRiccati(
     hamilton <<
         A + B * R.inverse() * B.transpose() * (A.inverse()).transpose() * Q,
         -B * R.inverse() * B.transpose() * (A.inverse()).transpose(),
-        -(A.inverse).transpose() * Q,
+        -(A.inverse()).transpose() * Q,
         (A.inverse()).transpose();
 
     const Eigen::EigenSolver<decltype(hamilton)> ham_eigenmat(hamilton);
@@ -40,12 +40,12 @@ Eigen::Matrix<double, dim_state, dim_state> solveDiscreteAlgebraicRiccati(
 
     // Choose eigenvectors whose eigenvalues are inside the unit circle
     for (size_t i = 0, col = 0; i < 2*dim_state; ++i) {
-        if (eigenvals[i].abs() < 1) eigenvecs_inside.col(col++) = eigenvecs.col(i);
+        if (abs(eigenvals[i]) < 1) eigenvecs_inside.col(col++) = eigenvecs.col(i);
     }
 
     const auto U1 = eigenvecs_inside.topRows(dim_state);
     const auto U2 = eigenvecs_inside.bottomRows(dim_state);
-    return U2 * U1.inverse();
+    return (U2 * U1.inverse()).real();
 }
 
 #endif // __DISCRETE_ARGEBRAIC_RICCATI_EQUATION_H__

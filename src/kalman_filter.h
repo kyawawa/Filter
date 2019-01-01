@@ -94,7 +94,7 @@ class SteadyKalmanFilter : public KalmanFilter<dim_state, dim_observe, dim_input
                        const Eigen::Ref<const MatrixObserveSqu>& _R)
         : super(_Xinit, _A, _B, _Q, _H, _R)
     {
-        P = solveDiscreteAlgebraicRiccati(_A.transpose(), _H.transpose(), _Q, _R);
+        P = solveDiscreteAlgebraicRiccati<dim_state, dim_observe>(_A.transpose(), _H.transpose(), _Q, _R);
         K = P * H.transpose() * (H * P * H.transpose() + R).inverse(); // TODO
     }
 

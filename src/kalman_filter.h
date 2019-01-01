@@ -17,6 +17,7 @@ class KalmanFilter
 {
     using VectorState      = Eigen::Matrix<double, dim_state, 1>;
     using MatrixState      = Eigen::Matrix<double, dim_state, dim_state>;
+    using VectorInput      = Eigen::Matrix<double, dim_input, 1>;
     using MatrixInput      = Eigen::Matrix<double, dim_state, dim_input>;
     using MatrixObserve    = Eigen::Matrix<double, dim_observe, dim_state>;
     using MatrixObserveSqu = Eigen::Matrix<double, dim_observe, dim_observe>;
@@ -25,16 +26,18 @@ class KalmanFilter
   public:
     KalmanFilter(const Eigen::Ref<const VectorState>& _Xinit,
                  const Eigen::Ref<const MatrixState>& _A,
+                 const Eigen::Ref<const VectorInput>& _U,
                  const Eigen::Ref<const MatrixInput>& _B,
                  const Eigen::Ref<const MatrixState>& _Q,
                  const Eigen::Ref<const MatrixObserve>& _H,
                  const Eigen::Ref<const MatrixObserveSqu>& _R)
-        : X(_Xinit), A(_A), B(_B), Q(_Q), H(_H), R(_R) {}
+        : X(_Xinit), A(_A), U(_U), B(_B), Q(_Q), H(_H), R(_R) {}
 
-    VectorState getStateVector() const { return X; };
+    auto getStateVector() const { return X; };
 
     void setStateVector(const Eigen::Ref<const VectorState>& _X) { X = _X; };
     void setStateMatrix(const Eigen::Ref<const MatrixState>& _A) { A = _A; };
+    void setInputVector(const Eigen::Ref<const MatrixInput>& _U) { U = _U; };
     void setInputMatrix(const Eigen::Ref<const MatrixInput>& _B) { B = _B; };
     void setProcessNoiseCovMatrix(const Eigen::Ref<const MatrixState>& _Q) { Q = _Q; };
     void setObservationMatrix(const Eigen::Ref<const MatrixObserve>& _H) { H = _H; };
@@ -42,7 +45,7 @@ class KalmanFilter
 
     virtual void predictNextState()
     {
-        X = A * X;
+        X = A * X + B * U;
         P = A * P * A.transpose() + Q;
     }
 
@@ -60,6 +63,7 @@ class KalmanFilter
     MatrixKalmanGain K;  // Kalman gain
     // Parameter
     MatrixState      A;  // State matrix
+    VectorInput      U;  // Input vector
     MatrixInput      B;  // Input matrix
     MatrixState      Q;  // Covariance matrix of the process noise
     MatrixObserve    H;  // Observation matrix
@@ -71,6 +75,7 @@ class SteadyKalmanFilter : public KalmanFilter<dim_state, dim_observe, dim_input
 {
     using VectorState      = Eigen::Matrix<double, dim_state, 1>;
     using MatrixState      = Eigen::Matrix<double, dim_state, dim_state>;
+    using VectorInput      = Eigen::Matrix<double, dim_input, 1>;
     using MatrixInput      = Eigen::Matrix<double, dim_state, dim_input>;
     using MatrixObserve    = Eigen::Matrix<double, dim_observe, dim_state>;
     using MatrixObserveSqu = Eigen::Matrix<double, dim_observe, dim_observe>;
@@ -80,6 +85,7 @@ class SteadyKalmanFilter : public KalmanFilter<dim_state, dim_observe, dim_input
     using super::P;
     using super::K;
     using super::A;
+    using super::U;
     using super::B;
     using super::Q;
     using super::H;
@@ -88,11 +94,12 @@ class SteadyKalmanFilter : public KalmanFilter<dim_state, dim_observe, dim_input
   public:
     SteadyKalmanFilter(const Eigen::Ref<const VectorState>& _Xinit,
                        const Eigen::Ref<const MatrixState>& _A,
+                       const Eigen::Ref<const VectorInput>& _U,
                        const Eigen::Ref<const MatrixInput>& _B,
                        const Eigen::Ref<const MatrixState>& _Q,
                        const Eigen::Ref<const MatrixObserve>& _H,
                        const Eigen::Ref<const MatrixObserveSqu>& _R)
-        : super(_Xinit, _A, _B, _Q, _H, _R)
+        : super(_Xinit, _A, _U, _B, _Q, _H, _R)
     {
         P = solveDiscreteAlgebraicRiccati<dim_state, dim_observe>(_A.transpose(), _H.transpose(), _Q, _R);
         K = P * H.transpose() * (H * P * H.transpose() + R).inverse(); // TODO

@@ -13,8 +13,8 @@
  * @return true if solved
  */
 
-#ifndef __DISCRETE_ARGEBRAIC_RICCATI_EQUATION_H__
-#define __DISCRETE_ARGEBRAIC_RICCATI_EQUATION_H__
+#ifndef __DISCRETE_ALGEBRAIC_RICCATI_EQUATION_H__
+#define __DISCRETE_ALGEBRAIC_RICCATI_EQUATION_H__
 
 #include <Eigen/Eigenvalues>
 
@@ -48,4 +48,4 @@ Eigen::Matrix<double, dim_state, dim_state> solveDiscreteAlgebraicRiccati(
     return (U2 * U1.inverse()).real();
 }
 
-#endif // __DISCRETE_ARGEBRAIC_RICCATI_EQUATION_H__
+#endif // __DISCRETE_ALGEBRAIC_RICCATI_EQUATION_H__

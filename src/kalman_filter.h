@@ -10,7 +10,7 @@
 #define __KALMANFILTER_H__
 
 #include <Eigen/Core>
-#include "discrete_argebraic_riccati_equation.h"
+#include "discrete_algebraic_riccati_equation.h"
 
 template<size_t dim_state, size_t dim_observe, size_t dim_input>
 class KalmanFilter

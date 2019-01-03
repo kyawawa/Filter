@@ -150,8 +150,8 @@ int main(int argc, char **argv)
     decltype(ball->getStateVector()) kalman_state_init(0, 10, 0.7, 0.3);
     // auto kalman = std::make_unique<SteadyKalmanFilter<4, 2, 4>>
     auto kalman = std::make_unique<KalmanFilter<4, 2, 4>>
-        (kalman_state_init, ball->getStateMatrix(),
-         ball->getInputVector(), ball->getInputMatrix(),
+        (kalman_state_init,                ball->getStateMatrix(),
+         ball->getInputVector(),           ball->getInputMatrix(),
          ball->getProcessNoiseCovMatrix(), ball->getObservationMatrix(),
          ball->getObservationNoiseCovMatrix());
     auto ball_kalman = StateSpaceKalmanFilter

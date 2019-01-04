@@ -1,9 +1,6 @@
 // -*- mode: C++; coding: utf-8-unix; -*-
 
 /**
- * State space representation:
- * x = Ax + Bu + w ( w ~ N(0, Q) )
- * y = Hx + v ( v ~ N(0, R) )
  * @file  kalman_filter.h
  * @brief Linear Kalman filter
  * @author Tatsuya Ishikawa

@@ -106,7 +106,7 @@ class GaussianNoiseBallTrajectory : public BallTrajectory
     GaussianNoiseBallTrajectory(const double x_init, const double z_init,
                                 const double dx_init, const double dz_init,
                                 const double _dt = 0.05,
-                                const double var_x = 0.05, const double var_z = 0.01)
+                                const double var_x = 0.1, const double var_z = 0.05)
         : BallTrajectory(x_init, z_init, dx_init, dz_init, _dt)
     {
         x_noise = std::normal_distribution<double>(0.0, sqrt(var_x));
@@ -145,21 +145,22 @@ class StateSpaceKalmanFilter
 int main(int argc, char **argv)
 {
     constexpr double dt = 0.02;
+    constexpr double dz_init = 0.8;
+    // constexpr double max_time = -2 * dz_init / G_ACC; // Time until the ball hits the ground
+    constexpr double max_time = 10;
+    constexpr unsigned int max_count = static_cast<unsigned int>(max_time / dt);
 
-    auto ball = std::make_unique<GaussianNoiseBallTrajectory>(0, 1, 0.5, 0.5, dt, 0.002, 0.001);
-    decltype(ball->getStateVector()) kalman_state_init(0, 10, 0.7, 0.3);
-    // auto kalman = std::make_unique<SteadyKalmanFilter<4, 2, 4>>
+    auto ball = std::make_unique<GaussianNoiseBallTrajectory>(0, 0, 0.5, dz_init, dt, 0.1, 0.05);
+    decltype(ball->getStateVector()) kalman_state_init(0.1, 0.05, 0.7, 0.5);
     auto kalman = std::make_unique<KalmanFilter<4, 2, 4>>
         (kalman_state_init,                ball->getStateMatrix(),
          ball->getInputVector(),           ball->getInputMatrix(),
          ball->getProcessNoiseCovMatrix(), ball->getObservationMatrix(),
-         ball->getObservationNoiseCovMatrix());
+         ball->getObservationNoiseCovMatrix(), true);
     auto ball_kalman = StateSpaceKalmanFilter
         <std::decay<decltype(*ball)>::type, std::decay<decltype(*kalman)>::type>
         (std::move(ball), std::move(kalman));
 
-    constexpr double max_time = 10.0;  // [s]
-    constexpr double max_count = max_time / dt;
     std::vector<double> time_list;
     std::vector<double> true_pos_x;
     std::vector<double> true_pos_z;
@@ -228,6 +229,7 @@ int main(int argc, char **argv)
     plt::named_plot("True State X", time_list, true_state_x, "--r");
     plt::named_plot("Predicted X", time_list, predicted_pos_x, "--g");
     plt::named_plot("Estimated X", time_list, estimated_pos_x, "--y");
+    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 2);
@@ -236,16 +238,19 @@ int main(int argc, char **argv)
     plt::named_plot("True State Z", time_list, true_state_z, "--r");
     plt::named_plot("Predicted Z", time_list, predicted_pos_z, "--g");
     plt::named_plot("Estimated Z", time_list, estimated_pos_z, "--y");
+    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 3);
     plt::title("Diff True and Estimated X");
     plt::plot(time_list, diff_state_estimated_x, "--b");
+    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 4);
     plt::title("Diff True and Estimated Z");
     plt::plot(time_list, diff_state_estimated_z, "--b");
+    plt::grid(true);
     plt::legend();
 
     std::signal(SIGINT, SIG_DFL);  // Kill plot by Ctrl-c

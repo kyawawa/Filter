@@ -75,7 +75,7 @@ class KalmanFilter
                               const Eigen::Ref<const MatrixObserveSqu>& _R)
     {
         const auto P_final = solveDiscreteAlgebraicRiccati<dim_state, dim_observe>(_A.transpose(), _H.transpose(), _Q, _R);
-        K = P_final * _H.transpose() * (_H * P_final * _H.transpose() + _R).inverse(); // TODO
+        K.noalias() = P_final * _H.transpose() * (_H * P_final * _H.transpose() + _R).inverse(); // TODO
         is_steady = true;
     }
 

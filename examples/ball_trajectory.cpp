@@ -195,7 +195,7 @@ int main()
 
         time_list.emplace_back(i * dt);
         {
-            const auto predicted_state = ball_kalman.getEstimatedStateVector().segment<2>(0);
+            const auto predicted_state = ball_kalman.getEstimatedStateVector();
             predicted_pos_x.emplace_back(predicted_state[0]);
             predicted_pos_z.emplace_back(predicted_state[1]);
         }
@@ -213,12 +213,12 @@ int main()
             true_state_z.emplace_back(true_state[1]);
         }
         {
-            const auto estimated_state = ball_kalman.getEstimatedStateVector().segment<2>(0);
+            const auto estimated_state = ball_kalman.getEstimatedStateVector();
             estimated_pos_x.emplace_back(estimated_state[0]);
             estimated_pos_z.emplace_back(estimated_state[1]);
         }
         {
-            const auto diff = ball_kalman.getTrueStateVector() - ball_kalman.getEstimatedStateVector();
+            const auto diff = (ball_kalman.getTrueStateVector() - ball_kalman.getEstimatedStateVector()).eval();
             diff_state_estimated_x.emplace_back(diff[0]);
             diff_state_estimated_z.emplace_back(diff[1]);
         }

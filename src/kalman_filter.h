@@ -28,7 +28,6 @@ class KalmanFilter
     using MatrixObserveSqu = Eigen::Matrix<double, dim_observe, dim_observe>;
     using MatrixKalmanGain = Eigen::Matrix<double, dim_state, dim_observe>;
 
-    bool is_steady;  // Calculate Kalman gain at each step or not
     // Estimate
     VectorState      X;  // State vector
     MatrixState      P;  // Error covariance matrix
@@ -40,6 +39,8 @@ class KalmanFilter
     MatrixState      Q;  // Covariance matrix of the process noise
     MatrixObserve    H;  // Observation matrix
     MatrixObserveSqu R;  // Covariance matrix of the observation noise
+
+    bool is_steady;  // Calculate Kalman gain at each step or not
 
   public:
     KalmanFilter(const Eigen::Ref<const VectorState>& _Xinit,
@@ -78,13 +79,13 @@ class KalmanFilter
         is_steady = true;
     }
 
-    virtual void predictNextState()
+    void predictNextState()
     {
         X = A * X + B * U;
         P = A * P * A.transpose() + Q;
     }
 
-    virtual void estimateCurrentState(const Eigen::Ref<const Eigen::Matrix<double, dim_observe, 1>>& _y)
+    void estimateCurrentState(const Eigen::Ref<const Eigen::Matrix<double, dim_observe, 1>>& _y)
     {
         if (!is_steady) K = P * H.transpose() * (H * P * H.transpose() + R).inverse(); // TODO
         X = X + K * (_y - H * X);

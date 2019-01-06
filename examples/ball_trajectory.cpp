@@ -64,6 +64,7 @@ class BallTrajectory
              0, 1, 0, 0;
         R.setZero();
     }
+    ~BallTrajectory() = default;
 
     auto getStateVector() const { return X; }
     auto getStateMatrix() const { return A; }
@@ -90,7 +91,7 @@ class BallTrajectory
 };
 
 // Add gaussian observation noise
-class GaussianNoiseBallTrajectory : public BallTrajectory
+class GaussianNoiseBallTrajectory final : public BallTrajectory
 {
     // Temporary until implement multivariate normal distributions
     std::mt19937 rand_engine{12345};
@@ -142,7 +143,7 @@ class StateSpaceKalmanFilter
     // void estimateCurrentState() { kalman_filter->estimateCurrentState(); }
 };
 
-int main(int argc, char **argv)
+int main()
 {
     constexpr double dt = 0.02;
     constexpr double dz_init = 0.8;

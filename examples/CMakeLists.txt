@@ -11,5 +11,10 @@ find_package(PythonLibs 2.7 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 message("${PYTHON_INCLUDE_DIRS}")
 
-add_executable(ball_trajectory ball_trajectory.cpp)
-target_link_libraries(ball_trajectory PRIVATE ${PYTHON_LIBRARIES})
+set(target ball_trajectory)
+add_executable(${target} ${target}.cpp)
+target_link_libraries(${target} PRIVATE ${PYTHON_LIBRARIES})
+
+set(target test_multivariate_normal_distribution)
+add_executable(${target} ${target}.cpp)
+target_link_libraries(${target} PRIVATE ${PYTHON_LIBRARIES})

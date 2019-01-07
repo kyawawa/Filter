@@ -35,14 +35,9 @@ class MultiVariateNormalDistribution
         if (llt_solver.info() == Eigen::Success) {
             transform = llt_solver.matrixL();
         } else {
-            const Eigen::LDLT<MatrixDim> ldlt_solver(covar);
-            if (ldlt_solver.info() == Eigen::Success) {
-                transform = ldlt_solver.matrixL();
-            } else {
-                const Eigen::SelfAdjointEigenSolver<MatrixDim> eigen_solver(covar);
-                transform = eigen_solver.eigenvectors() *
-                    eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
-            }
+            const Eigen::SelfAdjointEigenSolver<MatrixDim> eigen_solver(covar);
+            transform = eigen_solver.eigenvectors() *
+                eigen_solver.eigenvalues().cwiseSqrt().asDiagonal();
         }
     }
 

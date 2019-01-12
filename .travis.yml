@@ -1,0 +1,43 @@
+dist: xenial
+sudo: false
+language:
+  - c++
+cache:
+  - apt
+
+addons:
+  apt:
+    packages: &native_deps
+      - cmake
+      - libeigen3-dev
+      # To build examples
+      - python-dev
+      - python-numpy
+      - python-matplotlib
+
+matrix:
+  include:
+    - compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - *native_deps
+            - g++-5
+      env: COMPILER=g++-5
+    - compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - *native_deps
+            - clang-6.0
+      env: COMPILER=clang++-6.0
+
+script:
+  - install -d build
+  - cd build
+  - cmake .. -DCMAKE_CXX_COMPILER=$COMPILER -DCMAKE_BUILD_TYPE=Release
+  - make VERBOSE=1

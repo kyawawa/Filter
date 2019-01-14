@@ -14,6 +14,7 @@
 #include <random>
 #include <Eigen/Dense>
 
+namespace filter {
 template<size_t dim>
 class MultiVariateNormalDistribution
 {
@@ -52,5 +53,6 @@ class MultiVariateNormalDistribution
         return mean + transform * standard_dist_vec;
     }
 };
+} // end of namespace filter
 
 #endif // __MULTIVARIATE_NORMAL_DISTRIBUTION_H__

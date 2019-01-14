@@ -18,6 +18,7 @@
 
 #include <Eigen/Eigenvalues>
 
+namespace filter {
 template<size_t dim_state, size_t dim_control>
 Eigen::Matrix<double, dim_state, dim_state> solveDiscreteAlgebraicRiccati(
     const Eigen::Ref<const Eigen::Matrix<double, dim_state, dim_state>>& A,
@@ -47,5 +48,6 @@ Eigen::Matrix<double, dim_state, dim_state> solveDiscreteAlgebraicRiccati(
     const auto U2 = eigenvecs_inside.bottomRows(dim_state);
     return (U2 * U1.inverse()).real();
 }
+} // end of namespace filter
 
 #endif // __DISCRETE_ALGEBRAIC_RICCATI_EQUATION_H__

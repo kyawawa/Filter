@@ -21,7 +21,7 @@ int main()
     const auto mean = Eigen::Vector2d::Ones();
     Eigen::Matrix2d cov;
     cov << 1, 0.5, 0.5, 1;
-    auto dist = MultiVariateNormalDistribution<2>(mean, cov);
+    auto dist = filter::MultiVariateNormalDistribution<2>(mean, cov);
 
     constexpr size_t plot_num = 1000;
     std::vector<double> x;

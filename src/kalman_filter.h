@@ -17,6 +17,7 @@
 #include <Eigen/Core>
 #include "discrete_algebraic_riccati_equation.h"
 
+namespace filter {
 template<size_t dim_state, size_t dim_observe, size_t dim_input>
 class KalmanFilter
 {
@@ -202,5 +203,6 @@ class KalmanFilterSmoother
         }
     }
 };
+} // end of namespace filter
 
 #endif // __KALMANFILTER_H__

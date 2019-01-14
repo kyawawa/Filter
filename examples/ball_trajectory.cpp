@@ -17,7 +17,7 @@ namespace {
 namespace plt = matplotlibcpp;
 constexpr double G_ACC = -9.80665;
 }
-
+using namespace filter;
 /*
  * X = AX + u
  * X: (x z dx dz)', u: (0 0 0 -g)'

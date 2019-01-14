@@ -136,7 +136,6 @@ class ExtendedKalmanFilter
     {
         MatrixState state_jac;
         state_jacobian(X, &X, &state_jac);  //  Calc jacobian and update X
-        std::cerr << "sta jac:\n" << state_jac << std::endl;
         P = state_jac * P * state_jac.transpose() + Q;
     }
 
@@ -145,8 +144,6 @@ class ExtendedKalmanFilter
         MatrixObserve observe_jac;
         VectorObserve estimated_observe;
         observe_jacobian(X, &estimated_observe, &observe_jac);
-        std::cerr << "est obs:\n" << estimated_observe << std::endl;
-        std::cerr << "obs jac:\n" << observe_jac << std::endl;
 
         K = P * observe_jac.transpose() * (observe_jac * P * observe_jac.transpose() + R).inverse(); // TODO
         X = X + K * (_y - estimated_observe);

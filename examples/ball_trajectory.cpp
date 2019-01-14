@@ -12,6 +12,7 @@
 #include <csignal>
 #include "matplotlibcpp.h"
 #include "../src/kalman_filter.h"
+#include "../src/extended_kalman_filter.h"
 
 namespace {
 namespace plt = matplotlibcpp;
@@ -158,6 +159,23 @@ int main()
          ball->getInputVector(),           ball->getInputMatrix(),
          ball->getProcessNoiseCovMatrix(), ball->getObservationMatrix(),
          ball->getObservationNoiseCovMatrix(), true);
+
+    /// Extended Kalman Filter
+    // using VectorState = Eigen::Matrix<double, 4, 1>;
+    // using VectorInput = Eigen::Matrix<double, 4, 1>;
+    // auto kalman = std::make_unique<ExtendedKalmanFilter<4, 2, 4>>
+    //     (kalman_state_init,
+    //      [state_mat = ball->getStateMatrix(), input_mat = ball->getInputMatrix()]
+    //      (const auto& _X, const VectorInput& _U) {
+    //         using ActiveScalar = Eigen::AutoDiffScalar<VectorState>;
+    //         return state_mat * _X + input_mat * _U.template cast<ActiveScalar>();
+    //      },
+    //      ball->getInputVector(),
+    //      ball->getProcessNoiseCovMatrix(),
+    //      [observe_mat = ball->getObservationMatrix()] (const auto& _X) {
+    //          return observe_mat * _X;
+    //      },
+    //      ball->getObservationNoiseCovMatrix());
     auto ball_kalman = StateSpaceKalmanFilter
         <std::decay<decltype(*ball)>::type, std::decay<decltype(*kalman)>::type>
         (std::move(ball), std::move(kalman));

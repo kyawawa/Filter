@@ -48,7 +48,7 @@ class LinearSystem
         Y_.setZero();
     }
 
-    auto getStateVector()       const { return X_; }  // Only for debug
+    auto getStateVector()       const { return X_; }
     auto getStateMatrix()       const { return A_; }
     auto getInputVector()       const { return U_; }
     auto getInputMatrix()       const { return B_; }
@@ -56,12 +56,12 @@ class LinearSystem
     auto getObservationMatrix() const { return H_; }
     auto getFeedThroughMatrix() const { return D_; }
 
-    void setStateVector(const Eigen::Ref<const VectorState>& _X) { X_ = _X; };
-    void setStateMatrix(const Eigen::Ref<const MatrixState>& _A) { A_ = _A; };
-    void setInputVector(const Eigen::Ref<const MatrixInput>& _U) { U_ = _U; };
-    void setInputMatrix(const Eigen::Ref<const MatrixInput>& _B) { B_ = _B; };
-    void setObservationMatrix(const Eigen::Ref<const MatrixObserve>& _H) { H_ = _H; };
-    void setFeedThroughMatrix(const Eigen::Ref<const MatrixFeedThrough>& _D) { D_ = _D; };
+    void setStateVector(const Eigen::Ref<const VectorState>& _X) { X_ = _X; }
+    void setStateMatrix(const Eigen::Ref<const MatrixState>& _A) { A_ = _A; }
+    void setInputVector(const Eigen::Ref<const MatrixInput>& _U) { U_ = _U; }
+    void setInputMatrix(const Eigen::Ref<const MatrixInput>& _B) { B_ = _B; }
+    void setObservationMatrix(const Eigen::Ref<const MatrixObserve>& _H) { H_ = _H; }
+    void setFeedThroughMatrix(const Eigen::Ref<const MatrixFeedThrough>& _D) { D_ = _D; }
 
     void goNextStep()
     {
@@ -76,14 +76,14 @@ class LinearSystem
 template<size_t dim_state, size_t dim_observe, size_t dim_input>
 class NonLinearSystem
 {
-    using VectorState      = Eigen::Matrix<double, dim_state, 1>;
-    using VectorInput      = Eigen::Matrix<double, dim_input, 1>;
-    using VectorObserve    = Eigen::Matrix<double, dim_observe, 1>;
-    using StateFunction    = std::function<VectorState
-                                           (const double t,
-                                            const Eigen::Ref<const VectorState>& _X,
-                                            const Eigen::Ref<const VectorInput>& _U)>;
-    using ObserveFunction  = std::function<VectorObserve
+    using VectorState     = Eigen::Matrix<double, dim_state, 1>;
+    using VectorInput     = Eigen::Matrix<double, dim_input, 1>;
+    using VectorObserve   = Eigen::Matrix<double, dim_observe, 1>;
+    using StateFunction   = std::function<VectorState
+                                          (const double t,
+                                           const Eigen::Ref<const VectorState>& _X,
+                                           const Eigen::Ref<const VectorInput>& _U)>;
+    using ObserveFunction = std::function<VectorObserve
                                            (const double t,
                                             const Eigen::Ref<const VectorState>& _X,
                                             const Eigen::Ref<const VectorInput>& _U)>;
@@ -111,16 +111,16 @@ class NonLinearSystem
         Y_.setZero();
     }
 
-    auto getStateVector()     const { return X_; }  // Only for debug
+    auto getStateVector()     const { return X_; }
     auto getInputVector()     const { return U_; }
     auto getObservedState()   const { return Y_; }
     auto getStateFunction()   const { return f_; }
     auto getObserveFunction() const { return h_; }
 
-    void setStateVector(const Eigen::Ref<const VectorState>& _X) { X_ = _X; };
-    void setInputVector(const Eigen::Ref<const VectorInput>& _U) { U_ = _U; };
-    void setStateFunction(const StateFunction _f) { f_ = _f; };
-    void setObserveFunction(const ObserveFunction _h) { h_ = _h; };
+    void setStateVector(const Eigen::Ref<const VectorState>& _X) { X_ = _X; }
+    void setInputVector(const Eigen::Ref<const VectorInput>& _U) { U_ = _U; }
+    void setStateFunction(const StateFunction _f) { f_ = _f; }
+    void setObserveFunction(const ObserveFunction _h) { h_ = _h; }
 
     void goNextStep()
     {

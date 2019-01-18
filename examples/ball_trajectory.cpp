@@ -153,6 +153,7 @@ int main()
     constexpr unsigned int max_count = static_cast<unsigned int>(max_time / dt);
 
     auto ball = std::make_unique<GaussianNoiseBallTrajectory>(0, 0, 0.5, dz_init, dt, 0.1, 0.05);
+
     decltype(ball->getStateVector()) kalman_state_init(0.1, 0.05, 0.7, 0.5);
     auto kalman = std::make_unique<KalmanFilter<4, 2, 4>>
         (kalman_state_init,                ball->getStateMatrix(),
@@ -163,7 +164,7 @@ int main()
     /// Extended Kalman Filter
     // using VectorState = Eigen::Matrix<double, 4, 1>;
     // using VectorInput = Eigen::Matrix<double, 4, 1>;
-    // auto kalman = std::make_unique<ExtendedKalmanFilter<4, 2, 4>>
+    // auto kalman = std::make_unique<ExtendedKalmanFilterAutodiff<4, 2, 4>>
     //     (kalman_state_init,
     //      [state_mat = ball->getStateMatrix(), input_mat = ball->getInputMatrix()]
     //      (const auto& _X, const VectorInput& _U) {
@@ -176,6 +177,7 @@ int main()
     //          return observe_mat * _X;
     //      },
     //      ball->getObservationNoiseCovMatrix());
+
     auto ball_kalman = StateSpaceKalmanFilter
         <std::decay<decltype(*ball)>::type, std::decay<decltype(*kalman)>::type>
         (std::move(ball), std::move(kalman));

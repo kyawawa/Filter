@@ -25,6 +25,73 @@ class ExtendedKalmanFilter
     using VectorObserve    = Eigen::Matrix<double, dim_observe, 1>;
     using MatrixObserveSqu = Eigen::Matrix<double, dim_observe, dim_observe>;
     using MatrixKalmanGain = Eigen::Matrix<double, dim_state, dim_observe>;
+    using StateFunction    = std::function<VectorState(const VectorState&,
+                                                       const VectorInput&)>;
+    using ObserveFunction  = std::function<VectorObserve(const VectorState&)>;
+
+    // Estimate
+    VectorState      X;  // State vector
+    MatrixState      P;  // Error covariance matrix
+    MatrixKalmanGain K;  // Kalman gain
+    // Parameter
+    StateFunction    state_func;
+    MatrixState      state_jacobian;
+    VectorInput      U;  // Input vector
+    MatrixState      Q;  // Covariance matrix of the process noise
+    ObserveFunction  observe_func;
+    MatrixObserve    observe_jacobian;
+    MatrixObserveSqu R;  // Covariance matrix of the observation noise
+
+  public:
+    ExtendedKalmanFilter(const Eigen::Ref<const VectorState>& _Xinit,
+                         StateFunction _state_func,
+                         const Eigen::Ref<const MatrixState>& _state_jacobian,
+                         const Eigen::Ref<const VectorInput>& _U,
+                         const Eigen::Ref<const MatrixState>& _Q,
+                         ObserveFunction _observe_func,
+                         const Eigen::Ref<const MatrixObserve>& _observe_jacobian,
+                         const Eigen::Ref<const MatrixObserveSqu>& _R)
+    : X(_Xinit), state_func(_state_func), U(_U), Q(_Q),
+      observe_func(_observe_func), state_jacobian(_state_jacobian), R(_R)
+    {
+        K = Q * observe_jacobian.transpose() * (observe_jacobian * Q * observe_jacobian.transpose() + R).inverse();
+        P = (MatrixState::Identity() - K * observe_jacobian) * Q;
+    }
+
+    auto getStateVector() const { return X; };
+
+    void setStateVector(const Eigen::Ref<const VectorState>& _X) { X = _X; }
+    void setStateFunction(StateFunction _state_func) { state_func = _state_func; }
+    void setInputVector(const Eigen::Ref<const MatrixInput>& _U) { U = _U; }
+    void setProcessNoiseCovMatrix(const Eigen::Ref<const MatrixState>& _Q) { Q = _Q; }
+    void setObservationFunction(ObserveFunction _observe_func) { observe_func = _observe_func; }
+    void setObservationNoiseCovMatrix(const Eigen::Ref<const MatrixObserveSqu>& _R) { R = _R; }
+
+    void predictNextState()
+    {
+        X = state_func(X, U);
+        P = state_jacobian * P * state_jacobian.transpose() + Q;
+    }
+
+    void estimateCurrentState(const Eigen::Ref<const VectorObserve>& _y)
+    {
+        K = P * observe_jacobian.transpose() * (observe_jacobian * P * observe_jacobian.transpose() + R).inverse();
+        X = X + K * (_y - observe_func(X));
+        P = (MatrixState::Identity() - K * observe_jacobian) * P;
+    }
+};
+
+template<size_t dim_state, size_t dim_observe, size_t dim_input>
+class ExtendedKalmanFilterAutodiff
+{
+    using VectorState      = Eigen::Matrix<double, dim_state, 1>;
+    using MatrixState      = Eigen::Matrix<double, dim_state, dim_state>;
+    using VectorInput      = Eigen::Matrix<double, dim_input, 1>;
+    using MatrixInput      = Eigen::Matrix<double, dim_state, dim_input>;
+    using MatrixObserve    = Eigen::Matrix<double, dim_observe, dim_state>;
+    using VectorObserve    = Eigen::Matrix<double, dim_observe, 1>;
+    using MatrixObserveSqu = Eigen::Matrix<double, dim_observe, dim_observe>;
+    using MatrixKalmanGain = Eigen::Matrix<double, dim_state, dim_observe>;
     // For autodiff
     using ActiveScalar     = Eigen::AutoDiffScalar<VectorState>;
     using ActiveState      = Eigen::Matrix<ActiveScalar, dim_state, 1>;
@@ -46,7 +113,7 @@ class ExtendedKalmanFilter
 
     struct state_functor
     {
-        const ExtendedKalmanFilter<dim_state, dim_observe, dim_input>& super;
+        const ExtendedKalmanFilterAutodiff<dim_state, dim_observe, dim_input>& super;
         using InputType    = VectorState;
         using ValueType    = VectorState;
         using JacobianType = MatrixState;
@@ -56,7 +123,7 @@ class ExtendedKalmanFilter
             ValuesAtCompileTime = ValueType::RowsAtCompileTime
         };
 
-        state_functor(const ExtendedKalmanFilter<dim_state, dim_observe, dim_input>& _super) : super(_super) {}
+        state_functor(const ExtendedKalmanFilterAutodiff<dim_state, dim_observe, dim_input>& _super) : super(_super) {}
 
         size_t inputs() const { return InputsAtCompileTime; }
 
@@ -76,7 +143,7 @@ class ExtendedKalmanFilter
 
     struct observe_functor
     {
-        const ExtendedKalmanFilter<dim_state, dim_observe, dim_input>& super;
+        const ExtendedKalmanFilterAutodiff<dim_state, dim_observe, dim_input>& super;
         using InputType    = VectorState;
         using ValueType    = VectorObserve;
         using JacobianType = MatrixObserve;
@@ -86,7 +153,7 @@ class ExtendedKalmanFilter
             ValuesAtCompileTime = ValueType::RowsAtCompileTime
         };
 
-        observe_functor(const ExtendedKalmanFilter<dim_state, dim_observe, dim_input>& _super) : super(_super) {}
+        observe_functor(const ExtendedKalmanFilterAutodiff<dim_state, dim_observe, dim_input>& _super) : super(_super) {}
 
         size_t inputs() const { return InputsAtCompileTime; }
 
@@ -108,12 +175,12 @@ class ExtendedKalmanFilter
     Eigen::AutoDiffJacobian<observe_functor> observe_jacobian{*this};
 
   public:
-    ExtendedKalmanFilter(const Eigen::Ref<const VectorState>& _Xinit,
-                         StateFunction _state_func,
-                         const Eigen::Ref<const VectorInput>& _U,
-                         const Eigen::Ref<const MatrixState>& _Q,
-                         ObserveFunction _observe_func,
-                         const Eigen::Ref<const MatrixObserveSqu>& _R)
+    ExtendedKalmanFilterAutodiff(const Eigen::Ref<const VectorState>& _Xinit,
+                                 StateFunction _state_func,
+                                 const Eigen::Ref<const VectorInput>& _U,
+                                 const Eigen::Ref<const MatrixState>& _Q,
+                                 ObserveFunction _observe_func,
+                                 const Eigen::Ref<const MatrixObserveSqu>& _R)
         : X(_Xinit), state_func(_state_func), U(_U), Q(_Q), observe_func(_observe_func), R(_R)
     {
         MatrixObserve observe_jac;

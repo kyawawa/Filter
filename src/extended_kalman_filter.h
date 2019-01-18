@@ -10,6 +10,7 @@
 #define __EXTENDED_KALMAN_FILTER_H__
 
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include <unsupported/Eigen/AutoDiff>
 
 namespace filter {

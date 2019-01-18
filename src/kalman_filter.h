@@ -15,6 +15,7 @@
 #include <deque>
 #include <iterator>
 #include <Eigen/Core>
+#include <Eigen/LU>
 #include "discrete_algebraic_riccati_equation.h"
 
 namespace filter {

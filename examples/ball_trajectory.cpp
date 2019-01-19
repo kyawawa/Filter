@@ -209,6 +209,20 @@ int main()
     // diff_estimated_predict_x.reserve(max_count);
     // diff_estimated_predict_z.reserve(max_count);
 
+    plt::subplot(2, 2, 1);
+    plt::title("Ball Pos X");
+    plt::grid(true);
+    plt::subplot(2, 2, 2);
+    plt::title("Ball Pos Z");
+    plt::grid(true);
+    plt::subplot(2, 2, 3);
+    plt::title("Diff True and Estimated X");
+    plt::grid(true);
+    plt::subplot(2, 2, 4);
+    plt::title("Diff True and Estimated Z");
+    plt::grid(true);
+    std::signal(SIGINT, SIG_DFL);  // Kill plot by Ctrl-c
+
     // Issue: Now, first state is dropped
     for (size_t i = 0; i < max_count; ++i) {
         ball_kalman.predictNextState();
@@ -242,39 +256,50 @@ int main()
             diff_state_estimated_x.emplace_back(diff[0]);
             diff_state_estimated_z.emplace_back(diff[1]);
         }
+
+        plt::subplot(2, 2, 1);
+        plt::plot(time_list, true_pos_x, "--b");
+        plt::plot(time_list, true_state_x, "--r");
+        plt::plot(time_list, predicted_pos_x, "--g");
+        plt::plot(time_list, estimated_pos_x, "--y");
+
+        plt::subplot(2, 2, 2);
+        plt::plot(time_list, true_pos_z, "--b");
+        plt::plot(time_list, true_state_z, "--r");
+        plt::plot(time_list, predicted_pos_z, "--g");
+        plt::plot(time_list, estimated_pos_z, "--y");
+
+        plt::subplot(2, 2, 3);
+        plt::plot(time_list, diff_state_estimated_x, "--b");
+
+        plt::subplot(2, 2, 4);
+        plt::plot(time_list, diff_state_estimated_z, "--b");
+
+        plt::pause(0.0001);
     }
 
     plt::subplot(2, 2, 1);
-    plt::title("Ball Pos X");
     plt::named_plot("True Pos X", time_list, true_pos_x, "--b");
     plt::named_plot("True State X", time_list, true_state_x, "--r");
     plt::named_plot("Predicted X", time_list, predicted_pos_x, "--g");
     plt::named_plot("Estimated X", time_list, estimated_pos_x, "--y");
-    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 2);
-    plt::title("Ball Pos Z");
     plt::named_plot("True Pos Z", time_list, true_pos_z, "--b");
     plt::named_plot("True State Z", time_list, true_state_z, "--r");
     plt::named_plot("Predicted Z", time_list, predicted_pos_z, "--g");
     plt::named_plot("Estimated Z", time_list, estimated_pos_z, "--y");
-    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 3);
-    plt::title("Diff True and Estimated X");
     plt::plot(time_list, diff_state_estimated_x, "--b");
-    plt::grid(true);
     plt::legend();
 
     plt::subplot(2, 2, 4);
-    plt::title("Diff True and Estimated Z");
     plt::plot(time_list, diff_state_estimated_z, "--b");
-    plt::grid(true);
     plt::legend();
 
-    std::signal(SIGINT, SIG_DFL);  // Kill plot by Ctrl-c
     plt::show();
 
     return 0;

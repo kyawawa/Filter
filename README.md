@@ -5,6 +5,7 @@ This is a c++14 library for state estimation filtering such as Kalman Filter.
 
 Currently these filters are implemented:
 - Linear Kalman Filter
+- Extended Kalman Filter
 
 And these utils are implemented:
 - Discrete-time algebraic Riccati equation (Arimoto-Potter method)
